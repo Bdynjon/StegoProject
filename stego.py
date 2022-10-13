@@ -4,78 +4,55 @@ from matrix_operations import zig_val_iter, sum_mod, zig_index_iter, cut_into_bl
 import copy
 
 
-def insert(blocks, message, blocks_ind, coefs_ind, P: int = 50):
-    block_count = len(blocks_ind)
+def insert(blocks, message, coefs_ind, P: int = 50):
 
-    for i in range(block_count):
-        if i == len(message):
-            break
-        block = blocks[blocks_ind[i]]
+    for i in range(len(message)):
+
+        block = blocks[i]
         coef = coefs_ind[i]
 
-        third = block[coef[2][0], coef[2][1]]
         sec = block[coef[1][0], coef[1][1]]
         first = block[coef[0][0], coef[0][1]]
-        if i == 0:
-            print(blocks_ind[i])
-            print(block)
-            print(coef)
-            print(third, sec, first)
+
+        sec_abs = abs(sec)
+        first_abs = abs(first)
+
+        sec_sign = -1 if sec < 0 else 1
+        first_sign = -1 if first < 0 else 1
 
         ch = False
 
         if message[i] == 0:
-            m = min(first, sec)
-            if third >= m:
+            if first_abs - sec_abs <= P:
                 ch = True
-                block[coef[2][0], coef[2][1]] = m - int(P/2)
-                if first == m:
-                    block[coef[0][0], coef[0][1]] += int(P/2)
-                else:
-                    block[coef[1][0], coef[1][1]] += int(P/2)
+            block[coef[0][0], coef[0][1]] = (sec_abs + P + 1) * first_sign
+
         elif message[i] == 1:
-            m = max(first, sec)
-            if third <= m:
-                block[coef[2][0], coef[2][1]] = m + int(P/2)
+            if first_abs - sec_abs >= -P:
                 ch = True
-                if first == m:
-                    block[coef[0][0], coef[0][1]] -= int(P/2)
-                else:
-                    block[coef[1][0], coef[1][1]] -= int(P/2)
-        if i == 0:
-            print(block)
-            print(message[i])
-            print(ch)
+            block[coef[1][0], coef[1][1]] = (first_abs + P + 1) * sec_sign
 
-        blocks[blocks_ind[i]] = block
+        blocks[i] = block
 
 
-def extract(blocks, blocks_ind, coefs_ind, P):
+def extract(blocks, coefs_ind):
     message = []
 
-    for i, b_ind in enumerate(blocks_ind):
-        block = blocks[b_ind]
+    for i, block in enumerate(blocks):
         coef = coefs_ind[i]
 
-        third = block[coef[2][0], coef[2][1]]
         sec = block[coef[1][0], coef[1][1]]
         first = block[coef[0][0], coef[0][1]]
 
-        if i == 0:
-            print(b_ind)
-            print(block)
-            print(coef)
-            print(third, sec, first)
-
-        if third < min(sec, first) - P:
+        if abs(first) > abs(sec):
             message.append(0)
-        elif third > max(sec, first) + P:
+        elif abs(first) < abs(sec):
             message.append(1)
 
     return message
 
 
-def stego_code(container, message, P, HF, LF, Ph, Pl, rows):
+def stego_code(container, message, P, rows, key=1):
     container_size = container.shape[:2]
     block_size = 8
     stego = copy.deepcopy(container)
@@ -84,17 +61,14 @@ def stego_code(container, message, P, HF, LF, Ph, Pl, rows):
     count_blocks = cutted_container.shape[0]
     dct_block = dct_blocks(cutted_container)
 
-    approp_blocks = analyze_blocks(dct_block, HF, LF, Ph, Pl)
-    max_bits_count = len(approp_blocks)
-
-    if max_bits_count < len(message):
+    if count_blocks < len(message):
         raise ValueError("Choose shorter message or increase count of blocks")
 
-    indexes = generate_indexes(rows, 1, count_blocks)
+    indexes = generate_indexes(rows, key, count_blocks)
 
-    insert(dct_block, message, approp_blocks, indexes, P)
+    insert(dct_block, message, indexes, P)
     idct_block = idct_blocks(dct_block)
-    normalize_blocks(idct_block, approp_blocks)
+    normalize_blocks(idct_block)
 
     blue = unite_matris_blocks(idct_block, container_size)
     blue_size = blue.shape
@@ -103,27 +77,21 @@ def stego_code(container, message, P, HF, LF, Ph, Pl, rows):
     return stego
 
 
-def stego_decode(stego, P, HF, LF, Ph, Pl, rows):
+def stego_decode(stego, rows, key=1):
     block_size = 8
 
     cutted_container = cut_into_blocks(stego[:, :, 0], block_size)
     count_blocks = cutted_container.shape[0]
     dct_block = dct_blocks(cutted_container)
 
-    approp_blocks = analyze_blocks(dct_block, HF, LF, Ph, Pl)
-    indexes = generate_indexes(rows, 1, count_blocks)
+    indexes = generate_indexes(rows, key, count_blocks)
 
-    return extract(dct_block, approp_blocks, indexes, P)
+    return extract(dct_block, indexes)
 
 
-def normalize_blocks(blocks, indexes):
-    for j, i in enumerate(indexes):
-        if j == 0:
-            print("_______________")
-            print(blocks[i])
+def normalize_blocks(blocks):
+    for i in range(len(blocks)):
         blocks[i] = np.round(normalize(blocks[i]))
-        if j == 0:
-            print(blocks[i])
 
 
 def generate_indexes(rows, seed: int = -1, block_count: int = 1):
@@ -144,7 +112,7 @@ def generate_indexes(rows, seed: int = -1, block_count: int = 1):
 
     for i in range(block_count):
         ran = generator.permuted(ran)
-        res.append(index_vec[ran[:3]])
+        res.append(index_vec[ran[:2]])
 
     return res
 
