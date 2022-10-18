@@ -20,7 +20,6 @@ def insert(blocks, message, coefs_ind, P: int = 50):
         sec_sign = -1 if sec < 0 else 1
         first_sign = -1 if first < 0 else 1
 
-        ch = False
 
         if message[i] == 0:
             if first_abs - sec_abs <= P:
