@@ -13,6 +13,12 @@ if __name__ == "__main__":
 
     P = 5
 
+    HF = (9, 15)
+    LF = (1, 6)
+
+    Pl = 2600
+    Ph = 40
+
     rows = (7, 8)
     key = 1
 
@@ -20,12 +26,6 @@ if __name__ == "__main__":
     # show_im(stego)
     extr_message = stego_decode(stego, rows, key)
     extr_message = extr_message[:len(message)]
-
-    block_cont = cut_into_blocks(container[:, :, 0], 8)
-    dct_cont = dct_blocks(block_cont)
-    block_steg = cut_into_blocks(stego[:, :, 0], 8)
-    dct_stego = dct_blocks(block_steg)
-    diff = dct_cont - dct_stego
 
     print(compare_vectors(message, extr_message))
 

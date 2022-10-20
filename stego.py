@@ -20,7 +20,6 @@ def insert(blocks, message, coefs_ind, P: int = 50):
         sec_sign = -1 if sec < 0 else 1
         first_sign = -1 if first < 0 else 1
 
-
         if message[i] == 0:
             if first_abs - sec_abs <= P:
                 ch = True
@@ -49,6 +48,26 @@ def extract(blocks, coefs_ind):
             message.append(1)
 
     return message
+
+
+def analyze_blocks(blocks, HF, LF, Ph, Pl):
+    appropriate_blocks = []
+
+    for i, block in enumerate(blocks):
+
+        if analyze_block(block, HF, LF, Ph, Pl):
+            appropriate_blocks.append(i)
+
+    return appropriate_blocks
+
+
+def analyze_block(block, HF, LF, Ph, Pl):
+    SL = sum_mod(zig_val_iter(block, start_row=LF[0], finish_row=LF[1]))
+    SH = sum_mod(zig_val_iter(block, start_row=HF[0], finish_row=HF[1]))
+
+    if SL < Pl and SH > Ph:
+        return True
+    return False
 
 
 def stego_code(container, message, P, rows, key=1):
@@ -117,17 +136,20 @@ def generate_indexes(rows, seed: int = -1, block_count: int = 1):
 
 
 def analyze_blocks(blocks, HF, LF, Ph, Pl):
-    blocks_count = blocks.shape[0]
     appropriate_blocks = []
 
-    for i in range(blocks_count):
-        SL = sum_mod(zig_val_iter(blocks[i], start_row=LF[0], finish_row=LF[1]))
-        SH = sum_mod(zig_val_iter(blocks[i], start_row=HF[0], finish_row=HF[1]))
-        # print(SL)
-        # print(SH)
-        # print("_____________")
+    for i, block in enumerate(blocks):
 
-        if SL < Pl and SH > Ph:
+        if analyze_block(block, HF, LF, Ph, Pl):
             appropriate_blocks.append(i)
 
     return appropriate_blocks
+
+
+def analyze_block(block, HF, LF, Ph, Pl):
+    SL = sum_mod(zig_val_iter(block, start_row=LF[0], finish_row=LF[1]))
+    SH = sum_mod(zig_val_iter(block, start_row=HF[0], finish_row=HF[1]))
+
+    if SL < Pl and SH > Ph:
+        return True
+    return False
