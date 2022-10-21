@@ -1,5 +1,4 @@
 import json
-import pathlib
 
 
 class Params:
@@ -11,17 +10,20 @@ class Params:
         "Pl",
         "Ph",
         "rows",
-        "__default_parametrs_path"
+        "__default_parametrs_path",
+        "__is_loaded"
     }
 
-    def __new__(cls, *args, **kwargs):
-        if not hasattr(cls, "instanse"):
+    def __new__(cls):
+        if not hasattr(cls, "instance"):
             cls.instance = super(Params, cls).__new__(cls)
         return cls.instance
 
     def __init__(self):
         self.__default_parametrs_path = "params presets/default params.json"
-        self.load_preset()
+        if not hasattr(self, "_Params__is_loaded"):
+            self.load_preset()
+            self.__is_loaded = True
 
     def set_params(self, P=None, HF=None, LF=None, Pl=None, Ph=None, rows=None):
         self.P = P if P else self.P
@@ -73,5 +75,10 @@ if __name__ == "__main__":
 
     params.save_preset("params presets/my presets/test.json")
     params.load_preset("params presets/my presets/test.json")
-
     print(params.P)
+
+    params1 = Params()
+    print(params1.P)
+
+    print(params)
+    print(params1)
