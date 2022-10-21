@@ -14,6 +14,11 @@ class Params:
         "__default_parametrs_path"
     }
 
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, "instanse"):
+            cls.instance = super(Params, cls).__new__(cls)
+        return cls.instance
+
     def __init__(self):
         self.__default_parametrs_path = "params presets/default params.json"
         self.load_preset()
