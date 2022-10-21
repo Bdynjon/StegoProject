@@ -1,14 +1,22 @@
 import json
+import pathlib
 
 
 class Params:
+
+    __slots__ = {
+        "P",
+        "HF",
+        "LF",
+        "Pl",
+        "Ph",
+        "rows",
+        "__default_parametrs_path"
+    }
+
     def __init__(self):
-        self.P = 5
-        self.HF = (9, 15)
-        self.LF = (1, 6)
-        self.Pl = 2600
-        self.Ph = 40
-        self.rows = (7, 8)
+        self.__default_parametrs_path = "params presets/default params.json"
+        self.load_preset()
 
     def set_params(self, P=None, HF=None, LF=None, Pl=None, Ph=None, rows=None):
         self.P = P if P else self.P
@@ -18,7 +26,9 @@ class Params:
         self.Ph = Ph if Ph else self.Ph
         self.rows = rows if rows else self.rows
 
-    def save_preset(self, path: str = "params presets/test.json"):
+    def save_preset(self, path: str = None):
+        path = path if path else self.__default_parametrs_path
+
         param_dict = {
             "P": self.P,
             "HF": self.HF,
@@ -28,20 +38,35 @@ class Params:
             "rows": self.rows
         }
 
+        #if path != self.__default_parametrs_path:
+        #    directory_path, save_file = path.rsplit("/", 1)
+        #    directory = pathlib.Path(directory_path)
+
+        #    for file in directory.iterdir():
+        #        if file.name == save_file:
+        #            raise ValueError("Such file already exists in this directory")
+
         with open(path, "w") as param_file:
             json.dump(param_dict, param_file, indent=2)
 
-    def load_preset(self, path: str = "params presets/test.json"):
+    def load_preset(self, path: str = None):
+        path = path if path else self.__default_parametrs_path
+
         with open(path, "r") as param_file:
             param_dict = json.load(param_file)
 
-        self.set_params(param_dict["P"], param_dict["HF"], param_dict["LF"], param_dict["Pl"], param_dict["Ph"],
-                        param_dict["rows"])
+        for key in param_dict:
+            setattr(self, key, param_dict[key])
 
 
 if __name__ == "__main__":
     params = Params()
-    params.save_preset()
-    params.load_preset()
+    print(params.P)
+
+    params.set_params(P=20)
+    print(params.P)
+
+    params.save_preset("params presets/my presets/test.json")
+    params.load_preset("params presets/my presets/test.json")
 
     print(params.P)
