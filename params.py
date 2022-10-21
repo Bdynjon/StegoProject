@@ -11,7 +11,8 @@ class Params:
         "Ph",
         "rows",
         "__default_parametrs_path",
-        "__is_loaded"
+        "__is_loaded",
+        "block_size"
     }
 
     def __new__(cls):
@@ -25,13 +26,14 @@ class Params:
             self.load_preset()
             self.__is_loaded = True
 
-    def set_params(self, P=None, HF=None, LF=None, Pl=None, Ph=None, rows=None):
+    def set_params(self, P=None, HF=None, LF=None, Pl=None, Ph=None, rows=None, block_size=None):
         self.P = P if P else self.P
         self.HF = HF if HF else self.HF
         self.LF = LF if LF else self.LF
         self.Pl = Pl if Pl else self.Pl
         self.Ph = Ph if Ph else self.Ph
         self.rows = rows if rows else self.rows
+        self.block_size = block_size if block_size else self.block_size
 
     def save_preset(self, path: str = None):
         path = path if path else self.__default_parametrs_path
@@ -42,7 +44,8 @@ class Params:
             "LF": self.LF,
             "Pl": self.Pl,
             "Ph": self.Ph,
-            "rows": self.rows
+            "rows": self.rows,
+            "block_size": self.block_size
         }
 
         #if path != self.__default_parametrs_path:

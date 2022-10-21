@@ -1,5 +1,5 @@
 import numpy as np
-
+from params import Params
 from image_funcs import load_image, show_im, set_waitkey, save_image
 from stego import stego_code, stego_decode
 from converters import encode_string, decode_string
@@ -11,24 +11,19 @@ if __name__ == "__main__":
     # container = np.ones((512, 512, 3))*100
     message = encode_string("Test message 1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111")
 
-    P = 50
-
-    HF = (9, 15)
-    LF = (1, 6)
-
-    Pl = 2600
-    Ph = 40
-
-    rows = (7, 8)
     key = 1
+    params = Params()
+    params.P = 50
+    params.Ph = 40
+    params.save_preset()
 
-    stego = stego_code(container, message, P, rows, key)
+    stego, approp_blocks = stego_code(container, message, key)
     # show_im(stego)
 
     save_image(stego, "images/stego.jpg")
     stego = load_image("images/stego.jpg")
 
-    extr_message = stego_decode(stego, rows, key)
+    extr_message = stego_decode(stego, approp_blocks, key)
     extr_message = extr_message[:len(message)]
 
     print(compare_vectors(message, extr_message))
