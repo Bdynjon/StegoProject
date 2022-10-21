@@ -7,15 +7,26 @@ from matrix_operations import compare_vectors, dct_blocks, cut_into_blocks
 
 
 if __name__ == "__main__":
+    #container = load_image("images/sadov3.jpg")[600:1000, 400:700]
     container = load_image("images/sadov3.jpg")
     # container = np.ones((512, 512, 3))*100
-    message = encode_string("Test message 1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111")
+    message = encode_string("Test message")
 
     key = 1
+
+    #настройка параметров встраивания
     params = Params()
-    params.P = 50
-    params.Ph = 40
-    params.save_preset()
+    params.load_preset("params presets/my presets/test.json")
+
+    #глубина встраивания
+    params.P = 500
+
+    #номера диагоналей(побочных) для встраивания(номерация с левого верхнего края)
+    params.rows = (5, 6)
+
+    #минимальная сумма высокочастотных коэффициентов
+    params.Ph = 10
+    params.save_preset("params presets/my presets/test.json")
 
     stego, approp_blocks = stego_code(container, message, key)
     # show_im(stego)

@@ -24,18 +24,15 @@ def insert(blocks, message, coefs_ind, approp_blocks, params):
 
         if message[m] == 0:
             if first_abs - sec_abs <= params.P:
-                ch = True
-            block[coef[0][0], coef[0][1]] = (sec_abs + params.P + 1) * first_sign
+                block[coef[0][0], coef[0][1]] = (sec_abs + params.P) * first_sign
+                #block[coef[1][0], coef[1][1]] = (sec_abs - params.P / 2 - 1) * sec_sign
 
         elif message[m] == 1:
             if first_abs - sec_abs >= -params.P:
-                ch = True
-            block[coef[1][0], coef[1][1]] = (first_abs + params.P + 1) * sec_sign
+                block[coef[1][0], coef[1][1]] = (first_abs + params.P) * sec_sign
+                #block[coef[0][0], coef[0][1]] = (first_abs - params.P / 2 - 1) * first_sign
 
-        if analyze_block(block, params.HF, params.LF, params.Ph, params.Pl):
-            blocks[block_ind] = block
-        else:
-            del(approp_blocks[block_ind])
+        blocks[block_ind] = block
 
 
 def extract(blocks, coefs_ind, approp_block):
