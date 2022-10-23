@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     #настройка параметров встраивания
     params = Params()
-    params.load_preset("params presets/my presets/test.json")
+    params.load_preset()
 
     #глубина встраивания
     params.P = 40

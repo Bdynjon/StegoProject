@@ -9,6 +9,24 @@ class Key:
         "__default_key_path"
     }
 
+    @property
+    def seed(self):
+        return self.seed
+
+    @seed.setter
+    def seed(self, seed):
+        self.seed = seed
+        self.save_key()
+
+    @property
+    def approp_blocks(self):
+        return self.approp_blocks
+
+    @approp_blocks.setter
+    def approp_blocks(self, approp_blocks):
+        self.approp_blocks = approp_blocks
+        self.save_key()
+
     def __new__(cls):
         if not hasattr(cls, "instance"):
             cls.instance = super(Key, cls).__new__(cls)
