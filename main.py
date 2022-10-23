@@ -21,11 +21,11 @@ if __name__ == "__main__":
     #глубина встраивания
     params.P = 500
 
-    #номера диагоналей(побочных) для встраивания(номерация с левого верхнего края)
+    #номера диагоналей(побочных) для встраивания(номерация с левого верхнего угла)
     params.rows = (5, 6)
 
     #минимальная сумма высокочастотных коэффициентов
-    params.Ph = 10
+    params.Ph = 20
     params.save_preset("params presets/my presets/test.json")
 
     stego, approp_blocks = stego_code(container, message, key)
@@ -35,7 +35,6 @@ if __name__ == "__main__":
     stego = load_image("images/stego.jpg")
 
     extr_message = stego_decode(stego, approp_blocks, key)
-    extr_message = extr_message[:len(message)]
 
     print(compare_vectors(message, extr_message))
 
