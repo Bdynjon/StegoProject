@@ -9,24 +9,6 @@ class Key:
         "__default_key_path"
     }
 
-    @property
-    def seed(self):
-        return self.seed
-
-    @seed.setter
-    def seed(self, seed):
-        self.seed = seed
-        self.save_key()
-
-    @property
-    def approp_blocks(self):
-        return self.approp_blocks
-
-    @approp_blocks.setter
-    def approp_blocks(self, approp_blocks):
-        self.approp_blocks = approp_blocks
-        self.save_key()
-
     def __new__(cls):
         if not hasattr(cls, "instance"):
             cls.instance = super(Key, cls).__new__(cls)
@@ -35,6 +17,11 @@ class Key:
     def __init__(self):
         self.__default_key_path = "keys/default key.json"
         self.load_key()
+
+    def set_key(self, seed=None, approp_blocks=None):
+        self.seed = seed if seed else self.seed
+        self.approp_blocks = approp_blocks if approp_blocks else self.approp_blocks
+        self.save_key()
 
     def load_key(self, path: str = None):
         path = path if path else self.__default_key_path
@@ -60,6 +47,7 @@ class Key:
 if __name__ == "__main__":
     key = Key()
     key.seed = 20
+    print(key.seed)
     key.save_key()
     key.load_key()
     print(key.seed)
