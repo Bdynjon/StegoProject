@@ -6,7 +6,9 @@ from params import Params
 
 
 def insert(blocks, message, coefs_ind, approp_blocks, params):
-    for m, block_ind in enumerate(approp_blocks):
+
+    m = 0
+    for block_ind in approp_blocks:
         if m >= len(message):
             break
 
@@ -22,17 +24,39 @@ def insert(blocks, message, coefs_ind, approp_blocks, params):
         sec_sign = -1 if sec < 0 else 1
         first_sign = -1 if first < 0 else 1
 
+        diff = first_abs - sec_abs
+        inserted = True
+
         if message[m] == 0:
-            if first_abs - sec_abs <= params.P:
-                block[coef[0][0], coef[0][1]] = (sec_abs + params.P) * first_sign
-                #block[coef[1][0], coef[1][1]] = (sec_abs - params.P / 2 - 1) * sec_sign
+            if diff < -0.7*params.P:
+                inserted = False
+            elif diff <= params.P:
+                    block[coef[0][0], coef[0][1]] = (sec_abs + params.P) * first_sign
+                    #block[coef[1][0], coef[1][1]] = (sec_abs - params.P / 2 - 1) * sec_sign
 
         elif message[m] == 1:
-            if first_abs - sec_abs >= -params.P:
+            if diff > 0.7*params.P:
+                inserted = False
+            elif diff >= -params.P:
                 block[coef[1][0], coef[1][1]] = (first_abs + params.P) * sec_sign
                 #block[coef[0][0], coef[0][1]] = (first_abs - params.P / 2 - 1) * first_sign
 
-        blocks[block_ind] = block
+        if m == 197:
+            print(m)
+            print(message[m])
+            print(block)
+            print(first, sec)
+            print(block[coef[0][0], coef[0][1]], block[coef[1][0], coef[1][1]])
+            print("____________")
+
+        if inserted:
+            blocks[block_ind] = block
+            m+=1
+        else:
+            print(block_ind, "---")
+            del(approp_blocks[approp_blocks.index(block_ind)])
+
+        return approp_blocks
 
 
 def extract(blocks, coefs_ind, approp_block):
@@ -49,6 +73,14 @@ def extract(blocks, coefs_ind, approp_block):
             message.append(0)
         elif abs(first) < abs(sec):
             message.append(1)
+
+        if m == 197:
+            print(m)
+            print(message[m])
+            print(block)
+            print(first)
+            print(sec)
+            print("____________")
 
     return message
 
@@ -89,8 +121,7 @@ def stego_code(container, message, key):
         raise ValueError("Choose shorter message or increase count of blocks")
 
     indexes = generate_indexes(par.rows, key, count_blocks)
-
-    insert(dct_block, message, indexes, approp_blocks, par)
+    approp_blocks = insert(dct_block, message, indexes, approp_blocks, par)
     idct_block = idct_blocks(dct_block)
     normalize_blocks(idct_block)
 

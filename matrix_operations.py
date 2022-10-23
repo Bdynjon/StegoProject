@@ -2,12 +2,19 @@ import numpy as np
 from scipy.fftpack import dct, idct
 
 
+def PSNR(matrix1, matrix2):
+    pixel_count = np.prod(matrix1.shape)
+    s = np.sum(np.square(matrix1-matrix2))
+    return 10*np.log2(pixel_count*(255**2)/s)
+
+
 def compare_vectors(vec1, vec2):
     v1 = np.array(vec1)
-    v2 = np.array(vec2)
+    v2 = np.array(vec2)[:len(v1)]
     print(v1)
     print(v2)
-    print(v2[v1 == v2])
+    print(np.where(v1!=v2))
+    print(len(v1[v1 == v2])/len(v1))
     return np.all(v1 == v2)
 
 
