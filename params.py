@@ -22,9 +22,7 @@ class Params:
 
     def __init__(self):
         self.__default_parametrs_path = "params presets/default params.json"
-        if not hasattr(self, "_Params__is_loaded"):
-            self.load_preset()
-            self.__is_loaded = True
+        self.load_preset()
 
     def set_params(self, P=None, HF=None, LF=None, Pl=None, Ph=None, rows=None, block_size=None):
         self.P = P if P else self.P
@@ -34,6 +32,8 @@ class Params:
         self.Ph = Ph if Ph else self.Ph
         self.rows = rows if rows else self.rows
         self.block_size = block_size if block_size else self.block_size
+
+        self.save_preset()
 
     def save_preset(self, path: str = None):
         path = path if path else self.__default_parametrs_path

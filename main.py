@@ -19,25 +19,25 @@ if __name__ == "__main__":
     params.load_preset("params presets/my presets/test.json")
 
     #глубина встраивания
-    params.P = 100
+    params.P = 40
 
     #номера диагоналей(побочных) для встраивания(номерация с левого верхнего угла)
     params.rows = (6, 7)
 
     #максимальная сумма высокочастотных коэффициентов
-    params.Pl = 2600
+    params.Pl = 500000
 
     #минимальная сумма высокочастотных коэффициентов
-    params.Ph = 20
-    params.save_preset("params presets/my presets/test.json")
+    params.Ph = 10
+    params.save_preset()
 
-    stego, approp_blocks = stego_code(container, message, key)
+    stego = stego_code(container, message, key)
     # show_im(stego)
 
     save_image(stego, "images/stego/stego.jpg")
     stego = load_image("images/stego/stego.jpg")
 
-    extr_message = stego_decode(stego, approp_blocks, key)
+    extr_message = stego_decode(stego)
 
     print(PSNR(container, stego))
 

@@ -3,6 +3,7 @@ from matrix_operations import zig_val_iter, sum_mod, zig_index_iter, cut_into_bl
     unite_matris_blocks, normalize
 import copy
 from params import Params
+from key_loader import Key
 
 
 def insert_t(blocks, message, coefs_ind, approp_blocks, params):
@@ -124,7 +125,7 @@ def analyze_block(block, HF, LF, Ph, Pl):
     return False
 
 
-def stego_code(container, message, key):
+def stego_code(container, message, seed):
     container_size = container.shape[:2]
     stego = copy.deepcopy(container)
 
@@ -139,7 +140,7 @@ def stego_code(container, message, key):
     if count_blocks < len(message):
         raise ValueError("Choose shorter message or increase count of blocks")
 
-    indexes = generate_indexes(par.rows, key, count_blocks)
+    indexes = generate_indexes(par.rows, seed, count_blocks)
     #approp_blocks = insert_t(dct_block, message, indexes, approp_blocks, par)
     insert(dct_block, message, indexes, approp_blocks, par)
 
@@ -150,19 +151,26 @@ def stego_code(container, message, key):
     blue_size = blue.shape
 
     stego[:blue_size[0], :blue_size[1], 0] = blue[:, :]
-    return stego, approp_blocks
+
+    key = Key()
+    key.seed = seed
+    key.approp_blocks = approp_blocks
+    key.save_key()
+
+    return stego
 
 
-def stego_decode(stego, approp_block, key):
+def stego_decode(stego):
     par = Params()
+    key = Key()
 
     cutted_container = cut_into_blocks(stego[:, :, 0], par.block_size)
-    count_blocks = len(approp_block)
+    count_blocks = len(key.approp_blocks)
     dct_block = dct_blocks(cutted_container)
 
-    indexes = generate_indexes(par.rows, key, count_blocks)
+    indexes = generate_indexes(par.rows, key.seed, count_blocks)
 
-    return extract(dct_block, indexes, approp_block)
+    return extract(dct_block, indexes, key.approp_blocks)
 
 
 def normalize_blocks(blocks):
