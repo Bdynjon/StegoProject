@@ -10,7 +10,7 @@ if __name__ == "__main__":
     #container = load_image("images/sadov3.jpg")[600:1000, 400:700]
     container = load_image("images/sadov.png")
     # container = np.ones((512, 512, 3))*100
-    message = encode_string("Test message111111111111111111111")
+    message = encode_string("Test message11111111111111111111111111111111111111111111")
 
     key = 1
 
@@ -19,16 +19,16 @@ if __name__ == "__main__":
     params.load_preset("params presets/my presets/test.json")
 
     #глубина встраивания
-    params.P = 40
+    params.P = 100
 
     #номера диагоналей(побочных) для встраивания(номерация с левого верхнего угла)
     params.rows = (6, 7)
 
     #максимальная сумма высокочастотных коэффициентов
-    params.Pl = 10000000000000
+    params.Pl = 2600
 
     #минимальная сумма высокочастотных коэффициентов
-    params.Ph = 10
+    params.Ph = 20
     params.save_preset("params presets/my presets/test.json")
 
     stego, approp_blocks = stego_code(container, message, key)

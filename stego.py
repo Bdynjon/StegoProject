@@ -5,7 +5,7 @@ import copy
 from params import Params
 
 
-def insert(blocks, message, coefs_ind, approp_blocks, params):
+def insert_t(blocks, message, coefs_ind, approp_blocks, params):
 
     m = 0
     for block_ind in approp_blocks:
@@ -28,35 +28,62 @@ def insert(blocks, message, coefs_ind, approp_blocks, params):
         inserted = True
 
         if message[m] == 0:
-            if diff < -0.7*params.P:
-                inserted = False
-            elif diff <= params.P:
+            if diff <= params.P:
+                if diff > (-0.5 * params.P):
                     block[coef[0][0], coef[0][1]] = (sec_abs + params.P) * first_sign
-                    #block[coef[1][0], coef[1][1]] = (sec_abs - params.P / 2 - 1) * sec_sign
+                    # block[coef[1][0], coef[1][1]] = (sec_abs - params.P / 2 - 1) * sec_sign
+                else:
+                    inserted = False
 
         elif message[m] == 1:
-            if diff > 0.7*params.P:
-                inserted = False
-            elif diff >= -params.P:
-                block[coef[1][0], coef[1][1]] = (first_abs + params.P) * sec_sign
-                #block[coef[0][0], coef[0][1]] = (first_abs - params.P / 2 - 1) * first_sign
-
-        if m == 197:
-            print(m)
-            print(message[m])
-            print(block)
-            print(first, sec)
-            print(block[coef[0][0], coef[0][1]], block[coef[1][0], coef[1][1]])
-            print("____________")
+            if diff >= -params.P:
+                if diff < 0.5 * params.P:
+                    block[coef[1][0], coef[1][1]] = (first_abs + params.P) * sec_sign
+                    # block[coef[0][0], coef[0][1]] = (first_abs - params.P / 2 - 1) * first_sign
+                else:
+                    inserted = False
 
         if inserted:
             blocks[block_ind] = block
-            m+=1
+            m += 1
         else:
-            print(block_ind, "---")
+            print(block_ind)
             del(approp_blocks[approp_blocks.index(block_ind)])
 
-        return approp_blocks
+    return approp_blocks
+
+
+def insert(blocks, message, coefs_ind, approp_blocks, params):
+
+    for m, block_ind in enumerate(approp_blocks):
+        if m >= len(message):
+            break
+
+        block = blocks[block_ind]
+        coef = coefs_ind[m]
+
+        sec = block[coef[1][0], coef[1][1]]
+        first = block[coef[0][0], coef[0][1]]
+
+        sec_abs = abs(sec)
+        first_abs = abs(first)
+
+        sec_sign = -1 if sec < 0 else 1
+        first_sign = -1 if first < 0 else 1
+
+        diff = first_abs - sec_abs
+
+        if message[m] == 0:
+            if diff <= params.P:
+                block[coef[0][0], coef[0][1]] = (sec_abs + params.P) * first_sign
+                # block[coef[1][0], coef[1][1]] = (sec_abs - params.P / 2 - 1) * sec_sign
+
+        elif message[m] == 1:
+            if diff >= -params.P:
+                block[coef[1][0], coef[1][1]] = (first_abs + params.P) * sec_sign
+                # block[coef[0][0], coef[0][1]] = (first_abs - params.P / 2 - 1) * first_sign
+
+        blocks[block_ind] = block
 
 
 def extract(blocks, coefs_ind, approp_block):
@@ -73,14 +100,6 @@ def extract(blocks, coefs_ind, approp_block):
             message.append(0)
         elif abs(first) < abs(sec):
             message.append(1)
-
-        if m == 197:
-            print(m)
-            print(message[m])
-            print(block)
-            print(first)
-            print(sec)
-            print("____________")
 
     return message
 
@@ -121,7 +140,9 @@ def stego_code(container, message, key):
         raise ValueError("Choose shorter message or increase count of blocks")
 
     indexes = generate_indexes(par.rows, key, count_blocks)
-    approp_blocks = insert(dct_block, message, indexes, approp_blocks, par)
+    #approp_blocks = insert_t(dct_block, message, indexes, approp_blocks, par)
+    insert(dct_block, message, indexes, approp_blocks, par)
+
     idct_block = idct_blocks(dct_block)
     normalize_blocks(idct_block)
 
