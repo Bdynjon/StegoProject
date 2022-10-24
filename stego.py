@@ -105,26 +105,6 @@ def extract(blocks, coefs_ind, approp_block):
     return message
 
 
-def analyze_blocks(blocks, HF, LF, Ph, Pl):
-    appropriate_blocks = []
-
-    for i, block in enumerate(blocks):
-
-        if analyze_block(block, HF, LF, Ph, Pl):
-            appropriate_blocks.append(i)
-
-    return appropriate_blocks
-
-
-def analyze_block(block, HF, LF, Ph, Pl):
-    SL = sum_mod(zig_val_iter(block, start_row=LF[0], finish_row=LF[1]))
-    SH = sum_mod(zig_val_iter(block, start_row=HF[0], finish_row=HF[1]))
-
-    if SL < Pl and SH > Ph:
-        return True
-    return False
-
-
 def stego_code(container, message, seed):
     container_size = container.shape[:2]
     stego = copy.deepcopy(container)
@@ -134,14 +114,13 @@ def stego_code(container, message, seed):
     cutted_container = cut_into_blocks(stego[:, :, 0], par.block_size)
     dct_block = dct_blocks(cutted_container)
 
-    approp_blocks = analyze_blocks(dct_block, par.HF, par.LF, par.Ph, par.Pl)
-    count_blocks = len(approp_blocks)
-
+    count_blocks = len(dct_block)
     if count_blocks < len(message):
         raise ValueError("Choose shorter message or increase count of blocks")
 
+    approp_blocks = choose_blocks(count_blocks, seed, len(message))
+
     indexes = generate_indexes(par.rows, seed, count_blocks)
-    #approp_blocks = insert_t(dct_block, message, indexes, approp_blocks, par)
     insert(dct_block, message, indexes, approp_blocks, par)
 
     idct_block = idct_blocks(dct_block)
@@ -152,11 +131,6 @@ def stego_code(container, message, seed):
 
     stego[:blue_size[0], :blue_size[1], 0] = blue[:, :]
 
-    key = Key()
-    key.seed = seed
-    key.approp_blocks = approp_blocks
-    key.save_key()
-
     return stego
 
 
@@ -165,12 +139,13 @@ def stego_decode(stego):
     key = Key()
 
     cutted_container = cut_into_blocks(stego[:, :, 0], par.block_size)
-    count_blocks = len(key.approp_blocks)
     dct_block = dct_blocks(cutted_container)
+    block_count = len(dct_block)
 
-    indexes = generate_indexes(par.rows, key.seed, count_blocks)
+    indexes = generate_indexes(par.rows, key.seed, block_count)
+    approp_blocks = choose_blocks(block_count, key.seed, block_count)
 
-    return extract(dct_block, indexes, key.approp_blocks)
+    return extract(dct_block, indexes, approp_blocks)
 
 
 def normalize_blocks(blocks):
@@ -178,13 +153,16 @@ def normalize_blocks(blocks):
         blocks[i] = np.round(normalize(blocks[i]))
 
 
-def generate_indexes(rows, seed: int = -1, block_count: int = 1):
-    generator = np.random.default_rng()
-    if seed == -1:
-        seed = generator.integers(0, 100000)
-        generator = np.random.default_rng(seed)
-    else:
-        generator = np.random.default_rng(seed)
+def choose_blocks(block_count, seed, length):
+    generator = np.random.default_rng(seed)
+    ran = range(block_count)
+    ran = generator.permuted(ran)
+
+    return ran[:length]
+
+
+def generate_indexes(rows, seed: int = 1, block_count: int = 1):
+    generator = np.random.default_rng(seed)
 
     index_vec = []
     for ind in zig_index_iter(8, start_row=rows[0], finish_row=rows[1]):
@@ -199,23 +177,3 @@ def generate_indexes(rows, seed: int = -1, block_count: int = 1):
         res.append(index_vec[ran[:2]])
 
     return res
-
-
-def analyze_blocks(blocks, HF, LF, Ph, Pl):
-    appropriate_blocks = []
-
-    for i, block in enumerate(blocks):
-
-        if analyze_block(block, HF, LF, Ph, Pl):
-            appropriate_blocks.append(i)
-
-    return appropriate_blocks
-
-
-def analyze_block(block, HF, LF, Ph, Pl):
-    SL = sum_mod(zig_val_iter(block, start_row=LF[0], finish_row=LF[1]))
-    SH = sum_mod(zig_val_iter(block, start_row=HF[0], finish_row=HF[1]))
-
-    if SL < Pl and SH > Ph:
-        return True
-    return False
