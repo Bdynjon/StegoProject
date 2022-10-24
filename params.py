@@ -8,7 +8,8 @@ class Params:
         "rows",
         "__default_parametrs_path",
         "__is_loaded",
-        "block_size"
+        "block_size",
+        "channels"
     }
 
     def __new__(cls):
@@ -20,10 +21,11 @@ class Params:
         self.__default_parametrs_path = "params presets/default params.json"
         self.load_preset()
 
-    def set_params(self, P=None, rows=None, block_size=None):
+    def set_params(self, P: int = None, rows: tuple = None, block_size: int = None, channels: dict = None):
         self.P = P if P else self.P
         self.rows = rows if rows and (self.calc_max_rows() > rows[1]) else self.rows
         self.block_size = block_size if block_size else self.block_size
+        self.channels = channels if channels else self.channels
 
         self.save_preset()
 
@@ -39,7 +41,8 @@ class Params:
         param_dict = {
             "P": self.P,
             "rows": self.rows,
-            "block_size": self.block_size
+            "block_size": self.block_size,
+            "channels": self.channels
         }
 
         with open(path, "w") as param_file:
