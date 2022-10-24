@@ -5,10 +5,6 @@ class Params:
 
     __slots__ = {
         "P",
-        "HF",
-        "LF",
-        "Pl",
-        "Ph",
         "rows",
         "__default_parametrs_path",
         "__is_loaded",
@@ -24,37 +20,27 @@ class Params:
         self.__default_parametrs_path = "params presets/default params.json"
         self.load_preset()
 
-    def set_params(self, P=None, HF=None, LF=None, Pl=None, Ph=None, rows=None, block_size=None):
+    def set_params(self, P=None, rows=None, block_size=None):
         self.P = P if P else self.P
-        self.HF = HF if HF else self.HF
-        self.LF = LF if LF else self.LF
-        self.Pl = Pl if Pl else self.Pl
-        self.Ph = Ph if Ph else self.Ph
-        self.rows = rows if rows else self.rows
+        self.rows = rows if rows and (self.calc_max_rows() > rows[1]) else self.rows
         self.block_size = block_size if block_size else self.block_size
 
         self.save_preset()
+
+    def __check_rows(self):
+        pass
+
+    def calc_max_rows(self):
+        return self.block_size*2 - 1
 
     def save_preset(self, path: str = None):
         path = path if path else self.__default_parametrs_path
 
         param_dict = {
             "P": self.P,
-            "HF": self.HF,
-            "LF": self.LF,
-            "Pl": self.Pl,
-            "Ph": self.Ph,
             "rows": self.rows,
             "block_size": self.block_size
         }
-
-        #if path != self.__default_parametrs_path:
-        #    directory_path, save_file = path.rsplit("/", 1)
-        #    directory = pathlib.Path(directory_path)
-
-        #    for file in directory.iterdir():
-        #        if file.name == save_file:
-        #            raise ValueError("Such file already exists in this directory")
 
         with open(path, "w") as param_file:
             json.dump(param_dict, param_file, indent=2)

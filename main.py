@@ -12,14 +12,14 @@ if __name__ == "__main__":
     # container = np.ones((512, 512, 3))*100
     message = encode_string("Test message11111111111111111111111111111111111111111111")
 
-    key = 1
+    key = -1
 
     #настройка параметров встраивания
     params = Params()
     params.load_preset()
 
     #глубина встраивания
-    params.P = 40
+    params.P = 20
 
     #номера диагоналей(побочных) для встраивания(номерация с левого верхнего угла)
     params.rows = (6, 7)

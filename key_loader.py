@@ -5,7 +5,6 @@ class Key:
 
     __slots__ = {
         "seed",
-        "approp_blocks",
         "__default_key_path"
     }
 
@@ -20,7 +19,6 @@ class Key:
 
     def set_key(self, seed=None, approp_blocks=None):
         self.seed = seed if seed else self.seed
-        self.approp_blocks = approp_blocks if approp_blocks else self.approp_blocks
         self.save_key()
 
     def load_key(self, path: str = None):
@@ -36,8 +34,7 @@ class Key:
         path = path if path else self.__default_key_path
 
         key_dict = {
-            "seed": self.seed,
-            "approp_blocks": self.approp_blocks
+            "seed": self.seed
         }
 
         with open(path, "w") as key_file:
