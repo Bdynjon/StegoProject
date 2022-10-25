@@ -63,22 +63,7 @@ def stego_code(container, message, seed):
 
     par = Params()
 
-    cutted_container = None
-    chen_count = 0
-
-    if par.channels["blue"]:
-        cutted_container = cut_into_blocks(stego[:, :, 0], par.block_size)
-        chen_count += 1
-
-    if par.channels["green"]:
-        cutted_container = np.vstack((cutted_container, cut_into_blocks(stego[:, :, 1], par.block_size))) if \
-            isinstance(cutted_container, np.ndarray) else cut_into_blocks(stego[:, :, 1], par.block_size)
-        chen_count += 1
-
-    if par.channels["red"]:
-        cutted_container = np.vstack((cutted_container, cut_into_blocks(stego[:, :, 2], par.block_size))) if \
-            isinstance(cutted_container, np.ndarray) else cut_into_blocks(stego[:, :, 2], par.block_size)
-        chen_count += 1
+    cutted_container, chen_count = separate_channels(stego, par)
 
     dct_block = dct_blocks(cutted_container)
 
@@ -94,8 +79,30 @@ def stego_code(container, message, seed):
     idct_block = idct_blocks(dct_block)
     normalize_blocks(idct_block)
 
-    print(dct_block.shape)
-    #idct_block = idct_block.reshape((chen_count, int(count_blocks/chen_count), par.block_size, par.block_size))
+    return unite_channels(stego, idct_block, count_blocks, chen_count, par, container_size)
+
+
+def separate_channels(stego, par):
+    cutted_container = None
+    chen_count = 0
+
+    if par.channels["blue"]:
+        cutted_container = cut_into_blocks(stego[:, :, 0], par.block_size)
+        chen_count += 1
+
+    if par.channels["green"]:
+        cutted_container = np.vstack((cutted_container, cut_into_blocks(stego[:, :, 1], par.block_size))) if \
+            isinstance(cutted_container, np.ndarray) else cut_into_blocks(stego[:, :, 1], par.block_size)
+        chen_count += 1
+
+    if par.channels["red"]:
+        cutted_container = np.vstack((cutted_container, cut_into_blocks(stego[:, :, 2], par.block_size))) if \
+            isinstance(cutted_container, np.ndarray) else cut_into_blocks(stego[:, :, 2], par.block_size)
+
+    return cutted_container, chen_count
+
+
+def unite_channels(stego, idct_block, count_blocks, chen_count, par, container_size):
     interv = [[int(i*count_blocks/chen_count), int((i+1)*count_blocks/chen_count)] for i in range(chen_count)]
     i = 0
     print(interv)
