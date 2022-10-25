@@ -17,10 +17,13 @@ if __name__ == "__main__":
 
     #настройка параметров встраивания
     params = Params()
-    params.load_preset()
+
+    params.channels['blue'] = True
+    params.channels['green'] = False
+    params.channels['red'] = False
 
     #глубина встраивания
-    params.P = 100
+    params.P = 90
 
     #номера диагоналей(побочных) для встраивания(номерация с левого верхнего угла)
     params.rows = (6, 7)

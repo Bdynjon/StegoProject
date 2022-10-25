@@ -62,7 +62,9 @@ if __name__ == "__main__":
     params = Params()
     print(params.P)
 
-    params.set_params(P=20)
+    params.set_params(channels={'blue':True,
+                                'green':False,
+                                'red':False})
     print(params.P)
 
     params.save_preset("params presets/my presets/test.json")

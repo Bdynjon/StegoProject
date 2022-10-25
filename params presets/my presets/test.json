@@ -1,8 +1,13 @@
 {
-  "P": 20,
+  "P": 100,
   "rows": [
     6,
     7
   ],
-  "block_size": 8
+  "block_size": 8,
+  "channels": {
+    "blue": true,
+    "green": false,
+    "red": false
+  }
 }

@@ -6,54 +6,6 @@ from params import Params
 from key_loader import Key
 
 
-def insert_t(blocks, message, coefs_ind, approp_blocks, params):
-
-    m = 0
-    for block_ind in approp_blocks:
-        if m >= len(message):
-            break
-
-        block = blocks[block_ind]
-        coef = coefs_ind[m]
-
-        sec = block[coef[1][0], coef[1][1]]
-        first = block[coef[0][0], coef[0][1]]
-
-        sec_abs = abs(sec)
-        first_abs = abs(first)
-
-        sec_sign = -1 if sec < 0 else 1
-        first_sign = -1 if first < 0 else 1
-
-        diff = first_abs - sec_abs
-        inserted = True
-
-        if message[m] == 0:
-            if diff <= params.P:
-                if diff > (-0.5 * params.P):
-                    block[coef[0][0], coef[0][1]] = (sec_abs + params.P) * first_sign
-                    # block[coef[1][0], coef[1][1]] = (sec_abs - params.P / 2 - 1) * sec_sign
-                else:
-                    inserted = False
-
-        elif message[m] == 1:
-            if diff >= -params.P:
-                if diff < 0.5 * params.P:
-                    block[coef[1][0], coef[1][1]] = (first_abs + params.P) * sec_sign
-                    # block[coef[0][0], coef[0][1]] = (first_abs - params.P / 2 - 1) * first_sign
-                else:
-                    inserted = False
-
-        if inserted:
-            blocks[block_ind] = block
-            m += 1
-        else:
-            print(block_ind)
-            del(approp_blocks[approp_blocks.index(block_ind)])
-
-    return approp_blocks
-
-
 def insert(blocks, message, coefs_ind, approp_blocks, params):
 
     for m, block_ind in enumerate(approp_blocks):
@@ -111,7 +63,23 @@ def stego_code(container, message, seed):
 
     par = Params()
 
-    cutted_container = cut_into_blocks(stego[:, :, 0], par.block_size)
+    cutted_container = None
+    chen_count = 0
+
+    if par.channels["blue"]:
+        cutted_container = cut_into_blocks(stego[:, :, 0], par.block_size)
+        chen_count += 1
+
+    if par.channels["green"]:
+        cutted_container = np.vstack((cutted_container, cut_into_blocks(stego[:, :, 1], par.block_size))) if \
+            isinstance(cutted_container, np.ndarray) else cut_into_blocks(stego[:, :, 1], par.block_size)
+        chen_count += 1
+
+    if par.channels["red"]:
+        cutted_container = np.vstack((cutted_container, cut_into_blocks(stego[:, :, 2], par.block_size))) if \
+            isinstance(cutted_container, np.ndarray) else cut_into_blocks(stego[:, :, 2], par.block_size)
+        chen_count += 1
+
     dct_block = dct_blocks(cutted_container)
 
     count_blocks = len(dct_block)
@@ -126,10 +94,28 @@ def stego_code(container, message, seed):
     idct_block = idct_blocks(dct_block)
     normalize_blocks(idct_block)
 
-    blue = unite_matris_blocks(idct_block, container_size)
-    blue_size = blue.shape
+    print(dct_block.shape)
+    #idct_block = idct_block.reshape((chen_count, int(count_blocks/chen_count), par.block_size, par.block_size))
+    interv = [[int(i*count_blocks/chen_count), int((i+1)*count_blocks/chen_count)] for i in range(chen_count)]
+    i = 0
+    print(interv)
 
-    stego[:blue_size[0], :blue_size[1], 0] = blue[:, :]
+    if par.channels["blue"]:
+        united = unite_matris_blocks(idct_block[interv[i][0]:interv[i][1], :, :], container_size)
+        size = united.shape
+        stego[:size[0], :size[1], 0] = united[:, :]
+        i+=1
+
+    if par.channels["green"]:
+        united = unite_matris_blocks(idct_block[interv[i][0]:interv[i][1], :, :], container_size)
+        size = united.shape
+        stego[:size[0], :size[1], 1] = united[:, :]
+        i += 1
+
+    if par.channels["red"]:
+        united = unite_matris_blocks(idct_block[interv[i][0]:interv[i][1], :, :], container_size)
+        size = united.shape
+        stego[:size[0], :size[1], 2] = united[:, :]
 
     return stego
 
