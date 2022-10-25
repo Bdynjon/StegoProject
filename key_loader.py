@@ -15,11 +15,6 @@ class Key:
 
     def __init__(self):
         self.__default_key_path = "keys/default key.json"
-        self.load_key()
-
-    def set_key(self, seed=None, approp_blocks=None):
-        self.seed = seed if seed else self.seed
-        self.save_key()
 
     def load_key(self, path: str = None):
         path = path if path else self.__default_key_path

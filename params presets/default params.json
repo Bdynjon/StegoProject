@@ -1,13 +1,13 @@
 {
-  "P": 90,
+  "P": 25,
   "rows": [
     6,
     7
   ],
   "block_size": 8,
   "channels": {
-    "blue": true,
-    "green": false,
+    "blue": false,
+    "green": true,
     "red": false
   }
 }

@@ -1,45 +1,49 @@
 import numpy as np
 from params import Params
-from image_funcs import load_image, show_im, set_waitkey, save_image
-from stego import stego_code, stego_decode
+from image_funcs import load_image, show_im, set_waitkey
+from stegosystem import StegoSystem
 from converters import encode_string, decode_string
 from matrix_operations import compare_vectors, dct_blocks, cut_into_blocks, PSNR
-from key_loader import Key
 
 
 if __name__ == "__main__":
-    container = load_image("images/MilkyWay.jpg")
-    message = encode_string("Test message11111111111111111111111111111111111111111111")
 
-    key = Key()
-    key.seed = 1
-    key.save_key()
+    ss = StegoSystem()
+    message = "images/MilkyWay.jpg"
+    ss.load_first_im(message)
+    container = ss.get_first_im()
+    key = 1
+
+    message = "Test message11111111111111111111111111111111111111111111"
 
     #настройка параметров встраивания
     params = Params()
 
-    params.channels['blue'] = True
-    params.channels['green'] = False
+    params.channels['blue'] = False
+    params.channels['green'] = True
     params.channels['red'] = False
 
     #глубина встраивания
-    params.P = 90
+    params.P = 25
 
     #номера диагоналей(побочных) для встраивания(номерация с левого верхнего угла)
     params.rows = (6, 7)
     params.save_preset()
 
-    stego = stego_code(container, message, key.seed)
-    # show_im(stego)
+    ss.code(key, message)
+    ss.save_second_im("images/stego/stego.jpg")
 
-    save_image(stego, "images/stego/stego.jpg")
-    stego = load_image("images/stego/stego.jpg")
+    stego = ss.get_second_im()
+    stego_1 = load_image("images/stego/stego.jpg")
 
-    extr_message = stego_decode(stego)
+    print(stego - stego_1)
 
-    print(PSNR(container, stego))
+    ss.load_first_im("images/stego/stego.jpg")
+    extr_message = ss.decode(key)
 
-    print(compare_vectors(message, extr_message))
+    print(PSNR(container, stego_1))
+
+    print(compare_vectors(encode_string(message), encode_string(extr_message)))
 
     print(decode_string(extr_message))
 

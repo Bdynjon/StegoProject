@@ -18,6 +18,14 @@ def compare_vectors(vec1, vec2):
     return np.all(v1 == v2)
 
 
+def calc_count_blocks(matrix: np.ndarray, block_size: int):
+    matrix_size = matrix.shape
+    col_count = int(np.floor(matrix_size[1] / block_size))
+    row_count = int(np.floor(matrix_size[0] / block_size))
+    blocks_count = col_count * row_count
+    return blocks_count
+
+
 def cut_into_blocks(matrix: np.ndarray, block_size: int):
     matrix_size = matrix.shape
     col_count = int(np.floor(matrix_size[1] / block_size))
