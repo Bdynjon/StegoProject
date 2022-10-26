@@ -1,13 +1,14 @@
 {
-  "P": 25,
+  "P": 70,
   "rows": [
     6,
     7
   ],
   "block_size": 8,
   "channels": {
-    "blue": false,
-    "green": true,
+    "blue": true,
+    "green": false,
     "red": false
-  }
+  },
+  "hamming_block_size": 8
 }

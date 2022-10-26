@@ -5,7 +5,7 @@ from key_loader import Key
 import cv2
 from converters import decode_image, encode_image, decode_string, encode_string
 from stego_coders import CoxJao
-
+from haming import to_hamming_code, from_hamming_code
 
 class StegoSystem:
 
@@ -29,8 +29,8 @@ class StegoSystem:
         self.__key.seed = seed
         self.__key.save_key(path)
 
-    def set_params(self, P: int, rows: tuple, block_size: int, channels: dict):
-        self.__param.set_params(P, rows, block_size, channels)
+    def set_params(self, P: int, rows: tuple, block_size: int, channels: dict, hamming_block_size: int):
+        self.__param.set_params(P, rows, block_size, channels, hamming_block_size)
 
     def save_preset(self, path: str):
         self.__param.save_preset(path)
@@ -76,6 +76,8 @@ class StegoSystem:
         elif message_pype == "image":
             message = self.__convert_to_bits(self.__im_message_insert)
 
+        message = to_hamming_code(message, self.__param.hamming_block_size)
+
         if not isinstance(self.__first_im, np.ndarray):
             raise AttributeError("Container hasn't loaded yet")
 
@@ -95,6 +97,7 @@ class StegoSystem:
 
     def decode(self, key: int, message_type: str = "string"):
         message = self.__stego_coder.stego_decode(self.__first_im, self.__param, key)
+        message = from_hamming_code(message, self.__param.hamming_block_size)
 
         try:
             message = self.__convert_to_message(message, message_type)

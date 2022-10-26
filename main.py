@@ -19,19 +19,21 @@ if __name__ == "__main__":
     #настройка параметров встраивания
     params = Params()
 
-    params.channels['blue'] = False
-    params.channels['green'] = True
+    params.channels['blue'] = True
+    params.channels['green'] = False
     params.channels['red'] = False
 
     #глубина встраивания
-    params.P = 25
+    params.P = 70
 
     #номера диагоналей(побочных) для встраивания(номерация с левого верхнего угла)
     params.rows = (6, 7)
+
+    params.hamming_block_size = 8
     params.save_preset()
 
     ss.code(key, message)
-    ss.save_second_im("images/stego/stego.jpg")
+    ss.save_second_im("images/stego/stego.png")
 
     stego = ss.get_second_im()
     stego_1 = load_image("images/stego/stego.jpg")
@@ -45,7 +47,7 @@ if __name__ == "__main__":
 
     print(compare_vectors(encode_string(message), encode_string(extr_message)))
 
-    print(decode_string(extr_message))
+    print(extr_message)
 
     show_im(container, "cont")
     show_im(stego, "stego")

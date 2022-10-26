@@ -9,7 +9,8 @@ class Params:
         "__default_parametrs_path",
         "__is_loaded",
         "block_size",
-        "channels"
+        "channels",
+        "hamming_block_size"
     }
 
     def __new__(cls):
@@ -21,11 +22,13 @@ class Params:
         self.__default_parametrs_path = "params presets/default params.json"
         self.load_preset()
 
-    def set_params(self, P: int = None, rows: tuple = None, block_size: int = None, channels: dict = None):
+    def set_params(self, P: int = None, rows: tuple = None, block_size: int = None, channels: dict = None,
+                   hamming_block_size: int = None):
         self.P = P if P else self.P
         self.rows = rows if rows and (self.calc_max_rows() > rows[1]) else self.rows
         self.block_size = block_size if block_size else self.block_size
         self.channels = channels if channels else self.channels
+        self.hamming_block_size = hamming_block_size if hamming_block_size else self.hamming_block_size
 
         self.save_preset()
 
@@ -42,7 +45,8 @@ class Params:
             "P": self.P,
             "rows": self.rows,
             "block_size": self.block_size,
-            "channels": self.channels
+            "channels": self.channels,
+            "hamming_block_size": self.hamming_block_size
         }
 
         with open(path, "w") as param_file:
