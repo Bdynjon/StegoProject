@@ -1,0 +1,14 @@
+{
+  "rows": [
+    6,
+    6
+  ],
+  "P": 100,
+  "block_size": 8,
+  "channels": {
+    "blue": false,
+    "green": true,
+    "red": false
+  },
+  "hamming_block_size": 8
+}
